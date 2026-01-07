@@ -112,7 +112,13 @@ class Attention(nn.Module):
             x = xformers.ops.memory_efficient_attention(q, k, v, attn_bias=None, op=None,)
             x = rearrange(x, "B M H K -> B H M K")
         else:
-            raise RuntimeError("Unsupported attention operations.")
+            import torch.nn.functional as F
+
+            x = F.scaled_dot_product_attention(
+                        q, k, v,
+                        dropout_p=0.0,
+                        is_causal=False
+                    )
 
         return x
 
