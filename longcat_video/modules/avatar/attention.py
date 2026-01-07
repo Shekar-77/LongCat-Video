@@ -40,8 +40,8 @@ class Attention(nn.Module):
         self.num_heads = num_heads
         self.head_dim = dim // num_heads
         self.scale = self.head_dim**-0.5
-        self.enable_flashattn3 = enable_flashattn3
-        self.enable_flashattn2 = enable_flashattn2
+        self.enable_flashattn3 = False
+        self.enable_flashattn2 = False
         self.enable_xformers = enable_xformers
         self.enable_bsa = enable_bsa
         self.bsa_params = bsa_params
@@ -391,7 +391,10 @@ class SingleStreamAttention(nn.Module):
         
 
         if self.enable_flashattn3:
-            from flash_attn_interface import flash_attn_func
+            try:
+                from flash_attn_interface import flash_attn_func
+            except ImportError:
+                flash_attn = None
             q = rearrange(q, "B H S D -> B S H D").contiguous()
             encoder_k = rearrange(encoder_k, "B H S D -> B S H D").contiguous()
             encoder_v = rearrange(encoder_v, "B H S D -> B S H D").contiguous()
@@ -403,7 +406,10 @@ class SingleStreamAttention(nn.Module):
             )
             x = rearrange(x, "B S H D -> B H S D")
         elif self.enable_flashattn2:
-            from flash_attn import flash_attn_func
+            try:
+                from flash_attn_interface import flash_attn_func
+            except ImportError:
+                flash_attn = None
             q = rearrange(q, "B H S D -> B S H D")
             encoder_k = rearrange(encoder_k, "B H S D -> B S H D")
             encoder_v = rearrange(encoder_v, "B H S D -> B S H D")
