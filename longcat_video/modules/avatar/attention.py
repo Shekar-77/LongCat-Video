@@ -77,7 +77,7 @@ class Attention(nn.Module):
             latent_shape_k = (Tk, H, W)
             x = flash_attn_bsa_3d(q, k, v, latent_shape_q, latent_shape_k, **self.bsa_params)
         elif self.enable_flashattn3:
-            from flash_attn_interface import flash_attn_func
+            from flash_attn import flash_attn_func
 
             q = rearrange(q, "B H S D -> B S H D").contiguous()
             k = rearrange(k, "B H S D -> B S H D").contiguous()
@@ -90,7 +90,7 @@ class Attention(nn.Module):
             )
             x = rearrange(x, "B S H D -> B H S D")
         elif self.enable_flashattn2:
-            from flash_attn_interface import flash_attn_func
+            from flash_attn import flash_attn_func
             q = rearrange(q, "B H S D -> B S H D")
             k = rearrange(k, "B H S D -> B S H D")
             v = rearrange(v, "B H S D -> B S H D")
@@ -393,7 +393,7 @@ class SingleStreamAttention(nn.Module):
 
         if self.enable_flashattn3:
             try:
-                from flash_attn_interface import flash_attn_func
+                from flash_attn import flash_attn_func
             except ImportError:
                 flash_attn = None
             q = rearrange(q, "B H S D -> B S H D").contiguous()
@@ -408,7 +408,7 @@ class SingleStreamAttention(nn.Module):
             x = rearrange(x, "B S H D -> B H S D")
         elif self.enable_flashattn2:
             try:
-                from flash_attn_interface import flash_attn_func
+                from flash_attn import flash_attn_func
             except ImportError:
                 flash_attn = None
             q = rearrange(q, "B H S D -> B S H D")
